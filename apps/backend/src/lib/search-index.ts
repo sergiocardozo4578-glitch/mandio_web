@@ -222,16 +222,19 @@ async function buildDocuments(
       price != null && original && original > price ? Math.round(((original - price) / original) * 100) : 0
 
     // Una variante está en stock si no gestiona inventario, permite backorder o tiene disponibilidad.
+    // totalStock = null significa "sin límite" (alguna variante no controla stock).
     let totalStock: number | null = 0
-    const inStock = variants.some((v) => {
+    let inStock = false
+    for (const v of variants) {
       if (!v.manage_inventory || v.allow_backorder) {
         totalStock = null
-        return true
+        inStock = true
+        continue
       }
       const qty = availability[v.id]?.availability ?? 0
       if (totalStock !== null) totalStock += qty
-      return qty > 0
-    })
+      if (qty > 0) inStock = true
+    }
 
     const optionsByName: Record<string, Set<string>> = {}
     for (const v of variants) {

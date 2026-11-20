@@ -48,7 +48,11 @@ pnpm dev                              # levanta backend y storefront
 2. Un subscriber de Medusa (`apps/backend/src/subscribers`) reindexa Meilisearch y llama a `POST /api/revalidate` del storefront.
 3. Next.js invalida la caché (`revalidateTag`) y la próxima visita ve el cambio.
 
-Importar productos en cantidad: **Admin → Products → Import** (CSV; el admin ofrece la plantilla).
+## Cargar productos
+
+- **Carga rápida por foto** (Admin → menú lateral → *Carga rápida*): subís o sacás fotos de las prendas, cada foto se convierte en una tarjeta con nombre, precio en ₲, categoría, talles y stock por talle. Hay una barra "Aplicar a todas" para cargar el mismo precio, categoría o talles de una vez. Las fotos se achican a 1600 px en WebP antes de subirse. Por detrás usa `POST /admin/uploads` y `POST /admin/carga-rapida` (`apps/backend/src/api/admin/carga-rapida`).
+- **En cantidad desde planilla**: Admin → Products → Import (CSV; el admin ofrece la plantilla).
+- **Uno por uno con todas las opciones**: Admin → Products → Create.
 
 ## Problemas conocidos (y cómo evitarlos)
 

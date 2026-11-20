@@ -24,3 +24,5 @@ build
 !.yarn/versions
 
 .medusa
+# Archivos subidos en desarrollo (fotos de productos)
+static/

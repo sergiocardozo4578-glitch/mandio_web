@@ -14,7 +14,7 @@
     "db:setup": "medusa db:setup --db mandio",
     "db:migrate": "medusa db:migrate",
     "user:admin": "medusa user -e admin@mandio.com.py -p mandio1234",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p src/admin/tsconfig.json",
     "reindex": "medusa exec ./src/scripts/reindex.ts",
     "seed:demo": "medusa exec ./src/scripts/seed-demo.ts"
   },
@@ -22,7 +22,10 @@
     "@medusajs/admin-sdk": "2.23.0",
     "@medusajs/cli": "2.23.0",
     "@medusajs/framework": "2.23.0",
-    "@medusajs/medusa": "2.23.0"
+    "@medusajs/icons": "2.23.0",
+    "@medusajs/js-sdk": "2.23.0",
+    "@medusajs/medusa": "2.23.0",
+    "@medusajs/ui": "4.3.0"
   },
   "devDependencies": {
     "@medusajs/test-utils": "2.23.0",
