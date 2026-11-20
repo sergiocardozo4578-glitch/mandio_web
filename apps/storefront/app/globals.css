@@ -1,0 +1,22 @@
+@import "tailwindcss";
+
+/* Identidad provisoria de Mandi'o (mandioca): verde hoja, crema y amarillo.
+   Se reemplaza cuando esté el logo y la paleta definitiva. */
+@theme {
+  --color-brand: #2f6b3a;
+  --color-brand-dark: #1f4a28;
+  --color-accent: #f2c14e;
+  --color-accent-dark: #c99a2e;
+  --color-cream: #faf6ee;
+  --color-surface: #ffffff;
+  --color-ink: #1d1d1b;
+  --color-muted: #6b6b63;
+  --color-line: #e8e2d4;
+
+  --font-sans: var(--font-nunito), ui-sans-serif, system-ui, sans-serif;
+}
+
+body {
+  background: var(--color-cream);
+  color: var(--color-ink);
+}

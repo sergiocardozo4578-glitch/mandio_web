@@ -1,0 +1,24 @@
+{
+  "name": "mandio",
+  "private": true,
+  "description": "Mandi'o: tienda online multi-categoría (Paraguay)",
+  "packageManager": "pnpm@10.34.9",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "infra:up": "docker compose -f infra/docker-compose.yml up -d",
+    "infra:down": "docker compose -f infra/docker-compose.yml down",
+    "db:setup": "pnpm --filter @mandio/backend db:setup",
+    "seed": "pnpm --filter @mandio/backend seed",
+    "format": "prettier --write ."
+  },
+  "devDependencies": {
+    "prettier": "^3.6.2",
+    "turbo": "2.11.13"
+  }
+}

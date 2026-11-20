@@ -1,0 +1,20 @@
+node_modules/
+.turbo/
+.env
+.env.local
+.env.*.local
+!.env.example
+!.env.template
+.DS_Store
+*.log
+coverage/
+
+# Next.js
+.next/
+out/
+next-env.d.ts
+
+# Medusa
+.medusa/
+build/
+uploads/
