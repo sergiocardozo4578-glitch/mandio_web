@@ -277,8 +277,13 @@ export default async function seedMandio({ container }: ExecArgs) {
     })
     apiKey = result[0] as { id: string; token: string }
   }
+  // La key debe quedar ligada a UN solo canal: con varios, Medusa no puede calcular
+  // el stock de las variantes. Medusa crea un "Default Sales Channel" al iniciar, se desliga.
+  const otherChannels = (await salesChannelService.listSalesChannels({}))
+    .filter((sc) => sc.id !== salesChannel.id)
+    .map((sc) => sc.id)
   await linkSalesChannelsToApiKeyWorkflow(container).run({
-    input: { id: apiKey.id, add: [salesChannel.id] },
+    input: { id: apiKey.id, add: [salesChannel.id], remove: otherChannels },
   })
 
   // ---------- Categorías ----------

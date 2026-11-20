@@ -14,7 +14,9 @@
     "db:setup": "medusa db:setup --db mandio",
     "db:migrate": "medusa db:migrate",
     "user:admin": "medusa user -e admin@mandio.com.py -p mandio1234",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "reindex": "medusa exec ./src/scripts/reindex.ts",
+    "seed:demo": "medusa exec ./src/scripts/seed-demo.ts"
   },
   "dependencies": {
     "@medusajs/admin-sdk": "2.23.0",

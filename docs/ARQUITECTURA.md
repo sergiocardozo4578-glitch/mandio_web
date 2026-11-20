@@ -146,8 +146,8 @@ Cada módulo se relaciona con los módulos core mediante **Module Links** de Med
 | Ruta | Render | Contenido |
 |---|---|---|
 | `/` | ISR (60s) | Home: categorías, banners, novedades, secciones por categoría |
-| `/tienda` | ISR | Todo el catálogo con filtros |
-| `/c/[...categoria]` | ISR | Listado por categoría, por ejemplo `/c/ropa-mujer/blusas` |
+| `/tienda` | ISR + streaming | Todo el catálogo con filtros (talle, color, precio, ofertas, stock), orden y paginación de 24 |
+| `/c/[handle]` | ISR + streaming | Listado por categoría (incluye subcategorías), por ejemplo `/c/ropa-mujer-blusas`. Breadcrumbs con la ruta completa |
 | `/p/[handle]` | ISR + revalidación al editar | Ficha de producto |
 | `/buscar?q=` | SSR | Resultados de Meilisearch |
 | `/ofertas` | ISR | Productos con descuento |

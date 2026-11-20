@@ -28,7 +28,7 @@ importers:
         version: 2.23.0(@medusajs/cli@2.23.0(@types/node@20.19.43))(@opentelemetry/api@1.10.0)(@types/node@20.19.43)(vite@5.4.21(@types/node@20.19.43)(lightningcss@1.33.0))(zod@4.6.7)
       '@medusajs/medusa':
         specifier: 2.23.0
-        version: 2.23.0(fc07bde9fb2ecece98e10ec597f1a781)
+        version: 2.23.0(8c4f69765b2a37b8981ff0649a827048)
     devDependencies:
       '@medusajs/test-utils':
         specifier: 2.23.0
@@ -87,6 +87,9 @@ importers:
       react-dom:
         specifier: 19.3.0
         version: 19.3.0(react@19.3.0)
+      server-only:
+        specifier: ^0.0.1
+        version: 0.0.1
     devDependencies:
       '@medusajs/types':
         specifier: 2.23.0
@@ -7060,6 +7063,9 @@ packages:
     resolution: {integrity: sha512-xRXBn0pPqQTVQiC8wyQrKs2MOlX24zQ0POGaj0kultvoOCstBQM5yvOhAVSUwOMjQtTvsPWoNCHfPGwaaQJhTw==}
     engines: {node: '>= 18'}
 
+  server-only@0.0.1:
+    resolution: {integrity: sha512-qepMx2JxAa5jjfzxG79yPPq+8BuFToHd1hm7kI+Z4zAq1ftQiP7HcxMhDDItrbtwVeLg/cY2JnKnrcFkmiswNA==}
+
   set-blocking@2.0.0:
     resolution: {integrity: sha512-KiKBS8AnWGEyLzofFfmvKwpdPzqiy16LvQfK3yv/fVH7Bj13/wl3JSR1J+rfgRE9q7xUJK4qvgS8raSOeLUehw==}
 
@@ -8379,11 +8385,6 @@ snapshots:
       react: 18.3.1
       tslib: 2.9.1
 
-  '@dnd-kit/accessibility@3.1.1(react@19.3.1)':
-    dependencies:
-      react: 19.3.1
-      tslib: 2.9.1
-
   '@dnd-kit/core@6.3.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@dnd-kit/accessibility': 3.1.1(react@18.3.1)
@@ -8394,8 +8395,8 @@ snapshots:
 
   '@dnd-kit/core@6.3.1(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
     dependencies:
-      '@dnd-kit/accessibility': 3.1.1(react@19.3.1)
-      '@dnd-kit/utilities': 3.2.2(react@19.3.1)
+      '@dnd-kit/accessibility': 3.1.1(react@18.3.1)
+      '@dnd-kit/utilities': 3.2.2(react@18.3.1)
       react: 19.3.1
       react-dom: 19.3.1(react@19.3.1)
       tslib: 2.9.1
@@ -8705,13 +8706,13 @@ snapshots:
       protobufjs: 7.6.6
       yargs: 17.7.3
 
-  '@hookform/error-message@2.0.1(react-dom@19.3.1(react@19.3.1))(react-hook-form@7.92.0(@types/react@18.3.31)(react@19.3.1))(react@19.3.1)':
+  '@hookform/error-message@2.0.1(react-dom@19.3.1(react@19.3.1))(react-hook-form@7.92.0(@types/react@18.3.31)(react@18.3.1))(react@19.3.1)':
     dependencies:
       react: 19.3.1
       react-dom: 19.3.1(react@19.3.1)
       react-hook-form: 7.92.0(@types/react@18.3.31)(react@18.3.1)
 
-  '@hookform/resolvers@6.0.0(@sinclair/typebox@0.34.52)(ajv@8.13.0)(react-hook-form@7.92.0(@types/react@18.3.31)(react@19.3.1))(zod@4.6.7)':
+  '@hookform/resolvers@6.0.0(@sinclair/typebox@0.34.52)(ajv@8.13.0)(react-hook-form@7.92.0(@types/react@18.3.31)(react@18.3.1))(zod@4.6.7)':
     dependencies:
       '@standard-schema/utils': 0.3.0
       react-hook-form: 7.92.0(@types/react@18.3.31)(react@18.3.1)
@@ -9458,8 +9459,8 @@ snapshots:
       '@dnd-kit/core': 6.3.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@dnd-kit/sortable': 10.0.0(@dnd-kit/core@6.3.1(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react@19.3.1)
       '@dnd-kit/utilities': 3.2.2(react@19.3.1)
-      '@hookform/error-message': 2.0.1(react-dom@19.3.1(react@19.3.1))(react-hook-form@7.92.0(@types/react@18.3.31)(react@19.3.1))(react@19.3.1)
-      '@hookform/resolvers': 6.0.0(@sinclair/typebox@0.34.52)(ajv@8.13.0)(react-hook-form@7.92.0(@types/react@18.3.31)(react@19.3.1))(zod@4.6.7)
+      '@hookform/error-message': 2.0.1(react-dom@19.3.1(react@19.3.1))(react-hook-form@7.92.0(@types/react@18.3.31)(react@18.3.1))(react@19.3.1)
+      '@hookform/resolvers': 6.0.0(@sinclair/typebox@0.34.52)(ajv@8.13.0)(react-hook-form@7.92.0(@types/react@18.3.31)(react@18.3.1))(zod@4.6.7)
       '@medusajs/admin-shared': 2.23.0
       '@medusajs/icons': 2.23.0(react@19.3.1)
       '@medusajs/js-sdk': 2.23.0
@@ -9488,7 +9489,7 @@ snapshots:
       react-currency-input-field: 4.0.14(react@19.3.1)
       react-dom: 19.3.1(react@19.3.1)
       react-helmet-async: 3.1.0(react@19.3.1)
-      react-hook-form: 7.92.0(@types/react@18.3.31)(react@18.3.1)
+      react-hook-form: 7.92.0(@types/react@18.3.31)(react@19.3.1)
       react-i18next: 18.0.1(@types/react@18.3.31)(i18next@27.1.1(typescript@5.9.3))(react@19.3.1)(typescript@5.9.3)
       react-jwt: 2.1.1(react@19.3.1)
       react-router-dom: 7.18.5(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
@@ -9554,7 +9555,7 @@ snapshots:
     dependencies:
       '@ariakit/react': 0.4.43(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@babel/runtime': 8.1.2
-      '@hookform/resolvers': 6.0.0(@sinclair/typebox@0.34.52)(ajv@8.13.0)(react-hook-form@7.92.0(@types/react@18.3.31)(react@19.3.1))(zod@4.6.7)
+      '@hookform/resolvers': 6.0.0(@sinclair/typebox@0.34.52)(ajv@8.13.0)(react-hook-form@7.92.0(@types/react@18.3.31)(react@18.3.1))(zod@4.6.7)
       '@medusajs/framework': 2.23.0(@medusajs/cli@2.23.0(@types/node@20.19.43))(@opentelemetry/api@1.10.0)(@types/node@20.19.43)(vite@5.4.21(@types/node@20.19.43)(lightningcss@1.33.0))(zod@4.6.7)
       '@medusajs/js-sdk': 2.23.0
       '@tanstack/react-query': 5.107.1(@types/react@18.3.31)(react@18.3.1)
@@ -9607,10 +9608,10 @@ snapshots:
     dependencies:
       '@medusajs/framework': 2.23.0(@medusajs/cli@2.23.0(@types/node@20.19.43))(@opentelemetry/api@1.10.0)(@types/node@20.19.43)(vite@5.4.21(@types/node@20.19.43)(lightningcss@1.33.0))(zod@4.6.7)
 
-  '@medusajs/event-bus-redis@2.23.0(@medusajs/framework@2.23.0(@medusajs/cli@2.23.0(@types/node@20.19.43))(@opentelemetry/api@1.10.0)(@types/node@20.19.43)(vite@5.4.21(@types/node@20.19.43)(lightningcss@1.33.0))(zod@4.6.7))(pg@8.20.0)(redis@6.3.1(@opentelemetry/api@1.10.0))':
+  '@medusajs/event-bus-redis@2.23.0(@medusajs/framework@2.23.0(@medusajs/cli@2.23.0(@types/node@20.19.43))(@opentelemetry/api@1.10.0)(@types/node@20.19.43)(vite@5.4.21(@types/node@20.19.43)(lightningcss@1.33.0))(zod@4.6.7))(pg@8.23.1)(redis@6.3.1(@opentelemetry/api@1.10.0))':
     dependencies:
       '@medusajs/framework': 2.23.0(@medusajs/cli@2.23.0(@types/node@20.19.43))(@opentelemetry/api@1.10.0)(@types/node@20.19.43)(vite@5.4.21(@types/node@20.19.43)(lightningcss@1.33.0))(zod@4.6.7)
-      bullmq: 6.7.6(ioredis@6.0.0)(pg@8.20.0)(redis@6.3.1(@opentelemetry/api@1.10.0))
+      bullmq: 6.7.6(ioredis@6.0.0)(pg@8.23.1)(redis@6.3.1(@opentelemetry/api@1.10.0))
       ioredis: 6.0.0
     transitivePeerDependencies:
       - bullmq-otel
@@ -9731,7 +9732,7 @@ snapshots:
     dependencies:
       '@medusajs/framework': 2.23.0(@medusajs/cli@2.23.0(@types/node@20.19.43))(@opentelemetry/api@1.10.0)(@types/node@20.19.43)(vite@5.4.21(@types/node@20.19.43)(lightningcss@1.33.0))(zod@4.6.7)
 
-  '@medusajs/medusa@2.23.0(fc07bde9fb2ecece98e10ec597f1a781)':
+  '@medusajs/medusa@2.23.0(8c4f69765b2a37b8981ff0649a827048)':
     dependencies:
       '@inquirer/checkbox': 5.3.0(@types/node@20.19.43)
       '@inquirer/confirm': 6.4.0(@types/node@20.19.43)
@@ -9758,7 +9759,7 @@ snapshots:
       '@medusajs/customer': 2.23.0(@medusajs/framework@2.23.0(@medusajs/cli@2.23.0(@types/node@20.19.43))(@opentelemetry/api@1.10.0)(@types/node@20.19.43)(vite@5.4.21(@types/node@20.19.43)(lightningcss@1.33.0))(zod@4.6.7))
       '@medusajs/draft-order': 2.23.0(@medusajs/admin-sdk@2.23.0)(@medusajs/cli@2.23.0(@types/node@20.19.43))(@medusajs/dashboard@2.23.0(@sinclair/typebox@0.34.52)(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(ajv@8.13.0)(typescript@5.9.3))(@medusajs/framework@2.23.0(@medusajs/cli@2.23.0(@types/node@20.19.43))(@opentelemetry/api@1.10.0)(@types/node@20.19.43)(vite@5.4.21(@types/node@20.19.43)(lightningcss@1.33.0))(zod@4.6.7))(@medusajs/icons@2.23.0(react@18.3.1))(@medusajs/test-utils@2.23.0)(@medusajs/ui@4.3.0(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3))(@sinclair/typebox@0.34.52)(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(ajv@8.13.0)(react-dom@18.3.1(react@18.3.1))(react-router-dom@7.18.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)
       '@medusajs/event-bus-local': 2.23.0(@medusajs/framework@2.23.0(@medusajs/cli@2.23.0(@types/node@20.19.43))(@opentelemetry/api@1.10.0)(@types/node@20.19.43)(vite@5.4.21(@types/node@20.19.43)(lightningcss@1.33.0))(zod@4.6.7))
-      '@medusajs/event-bus-redis': 2.23.0(@medusajs/framework@2.23.0(@medusajs/cli@2.23.0(@types/node@20.19.43))(@opentelemetry/api@1.10.0)(@types/node@20.19.43)(vite@5.4.21(@types/node@20.19.43)(lightningcss@1.33.0))(zod@4.6.7))(pg@8.20.0)(redis@6.3.1(@opentelemetry/api@1.10.0))
+      '@medusajs/event-bus-redis': 2.23.0(@medusajs/framework@2.23.0(@medusajs/cli@2.23.0(@types/node@20.19.43))(@opentelemetry/api@1.10.0)(@types/node@20.19.43)(vite@5.4.21(@types/node@20.19.43)(lightningcss@1.33.0))(zod@4.6.7))(pg@8.23.1)(redis@6.3.1(@opentelemetry/api@1.10.0))
       '@medusajs/file': 2.23.0(@medusajs/framework@2.23.0(@medusajs/cli@2.23.0(@types/node@20.19.43))(@opentelemetry/api@1.10.0)(@types/node@20.19.43)(vite@5.4.21(@types/node@20.19.43)(lightningcss@1.33.0))(zod@4.6.7))
       '@medusajs/file-local': 2.23.0(@medusajs/framework@2.23.0(@medusajs/cli@2.23.0(@types/node@20.19.43))(@opentelemetry/api@1.10.0)(@types/node@20.19.43)(vite@5.4.21(@types/node@20.19.43)(lightningcss@1.33.0))(zod@4.6.7))
       '@medusajs/file-s3': 2.23.0(@medusajs/framework@2.23.0(@medusajs/cli@2.23.0(@types/node@20.19.43))(@opentelemetry/api@1.10.0)(@types/node@20.19.43)(vite@5.4.21(@types/node@20.19.43)(lightningcss@1.33.0))(zod@4.6.7))
@@ -9794,7 +9795,7 @@ snapshots:
       '@medusajs/translation': 2.23.0(@medusajs/framework@2.23.0(@medusajs/cli@2.23.0(@types/node@20.19.43))(@opentelemetry/api@1.10.0)(@types/node@20.19.43)(vite@5.4.21(@types/node@20.19.43)(lightningcss@1.33.0))(zod@4.6.7))
       '@medusajs/user': 2.23.0(@medusajs/framework@2.23.0(@medusajs/cli@2.23.0(@types/node@20.19.43))(@opentelemetry/api@1.10.0)(@types/node@20.19.43)(vite@5.4.21(@types/node@20.19.43)(lightningcss@1.33.0))(zod@4.6.7))
       '@medusajs/workflow-engine-inmemory': 2.23.0(@medusajs/framework@2.23.0(@medusajs/cli@2.23.0(@types/node@20.19.43))(@opentelemetry/api@1.10.0)(@types/node@20.19.43)(vite@5.4.21(@types/node@20.19.43)(lightningcss@1.33.0))(zod@4.6.7))
-      '@medusajs/workflow-engine-redis': 2.23.0(@medusajs/framework@2.23.0(@medusajs/cli@2.23.0(@types/node@20.19.43))(@opentelemetry/api@1.10.0)(@types/node@20.19.43)(vite@5.4.21(@types/node@20.19.43)(lightningcss@1.33.0))(zod@4.6.7))(pg@8.20.0)(redis@6.3.1(@opentelemetry/api@1.10.0))
+      '@medusajs/workflow-engine-redis': 2.23.0(@medusajs/framework@2.23.0(@medusajs/cli@2.23.0(@types/node@20.19.43))(@opentelemetry/api@1.10.0)(@types/node@20.19.43)(vite@5.4.21(@types/node@20.19.43)(lightningcss@1.33.0))(zod@4.6.7))(pg@8.23.1)(redis@6.3.1(@opentelemetry/api@1.10.0))
       boxen: 9.0.0
       chokidar: 6.0.0
       compression: 1.8.2
@@ -10037,7 +10038,7 @@ snapshots:
       ulid: 3.0.2
     optionalDependencies:
       '@medusajs/core-flows': 2.23.0(@medusajs/framework@2.23.0(@medusajs/cli@2.23.0(@types/node@20.19.43))(@opentelemetry/api@1.10.0)(@types/node@20.19.43)(vite@5.4.21(@types/node@20.19.43)(lightningcss@1.33.0))(zod@4.6.7))
-      '@medusajs/medusa': 2.23.0(fc07bde9fb2ecece98e10ec597f1a781)
+      '@medusajs/medusa': 2.23.0(8c4f69765b2a37b8981ff0649a827048)
     transitivePeerDependencies:
       - debug
       - supports-color
@@ -10168,10 +10169,10 @@ snapshots:
       cron-parser: 5.10.6
       ulid: 3.0.2
 
-  '@medusajs/workflow-engine-redis@2.23.0(@medusajs/framework@2.23.0(@medusajs/cli@2.23.0(@types/node@20.19.43))(@opentelemetry/api@1.10.0)(@types/node@20.19.43)(vite@5.4.21(@types/node@20.19.43)(lightningcss@1.33.0))(zod@4.6.7))(pg@8.20.0)(redis@6.3.1(@opentelemetry/api@1.10.0))':
+  '@medusajs/workflow-engine-redis@2.23.0(@medusajs/framework@2.23.0(@medusajs/cli@2.23.0(@types/node@20.19.43))(@opentelemetry/api@1.10.0)(@types/node@20.19.43)(vite@5.4.21(@types/node@20.19.43)(lightningcss@1.33.0))(zod@4.6.7))(pg@8.23.1)(redis@6.3.1(@opentelemetry/api@1.10.0))':
     dependencies:
       '@medusajs/framework': 2.23.0(@medusajs/cli@2.23.0(@types/node@20.19.43))(@opentelemetry/api@1.10.0)(@types/node@20.19.43)(vite@5.4.21(@types/node@20.19.43)(lightningcss@1.33.0))(zod@4.6.7)
-      bullmq: 6.7.6(ioredis@6.0.0)(pg@8.20.0)(redis@6.3.1(@opentelemetry/api@1.10.0))
+      bullmq: 6.7.6(ioredis@6.0.0)(pg@8.23.1)(redis@6.3.1(@opentelemetry/api@1.10.0))
       ioredis: 6.0.0
       ulid: 3.0.2
     transitivePeerDependencies:
@@ -13350,7 +13351,7 @@ snapshots:
       base64-js: 1.5.1
       ieee754: 1.2.1
 
-  bullmq@6.7.6(ioredis@6.0.0)(pg@8.20.0)(redis@6.3.1(@opentelemetry/api@1.10.0)):
+  bullmq@6.7.6(ioredis@6.0.0)(pg@8.23.1)(redis@6.3.1(@opentelemetry/api@1.10.0)):
     dependencies:
       cron-parser: 5.10.4
       msgpackr: 2.1.4
@@ -13359,7 +13360,7 @@ snapshots:
       tslib: 2.9.1
     optionalDependencies:
       ioredis: 6.0.0
-      pg: 8.20.0
+      pg: 8.23.1
       redis: 6.3.1(@opentelemetry/api@1.10.0)
 
   busboy@1.6.0:
@@ -16260,6 +16261,12 @@ snapshots:
     optionalDependencies:
       '@types/react': 18.3.31
 
+  react-hook-form@7.92.0(@types/react@18.3.31)(react@19.3.1):
+    dependencies:
+      react: 19.3.1
+    optionalDependencies:
+      '@types/react': 18.3.31
+
   react-i18next@18.0.1(@types/react@18.3.31)(i18next@27.1.1(typescript@5.9.3))(react@19.3.1)(typescript@5.9.3):
     dependencies:
       html-parse-stringify: 4.0.1
@@ -16630,6 +16637,8 @@ snapshots:
       send: 1.2.1
     transitivePeerDependencies:
       - supports-color
+
+  server-only@0.0.1: {}
 
   set-blocking@2.0.0: {}
 

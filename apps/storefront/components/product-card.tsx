@@ -1,51 +1,59 @@
 import Image from "next/image"
 import Link from "next/link"
-import type { HttpTypes } from "@medusajs/types"
-import { formatGuarani, getProductPrice } from "@/lib/format"
+import type { SearchProduct } from "@/lib/search"
+import { formatGuarani } from "@/lib/format"
 
-export function ProductCard({ product }: { product: HttpTypes.StoreProduct }) {
-  const price = getProductPrice(product)
-  const hasVariants = (product.variants?.length ?? 0) > 1
+export function ProductCard({ product }: { product: SearchProduct }) {
+  const href = `/p/${product.handle}`
 
   return (
     <article className="group flex flex-col overflow-hidden rounded-2xl border border-line bg-surface transition hover:shadow-md">
-      <Link href={`/p/${product.handle}`} className="relative block aspect-square bg-cream">
+      <Link href={href} className="relative block aspect-square bg-cream">
         {product.thumbnail && (
           <Image
             src={product.thumbnail}
             alt={product.title}
             fill
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-            className="object-cover transition duration-300 group-hover:scale-105"
+            className={`object-cover transition duration-300 group-hover:scale-105 ${product.in_stock ? "" : "opacity-60 grayscale"}`}
           />
         )}
-        {price && price.discountPercent > 0 && (
-          <span className="absolute left-3 top-3 rounded-full bg-accent px-2.5 py-1 text-xs font-bold text-ink">
-            -{price.discountPercent}%
-          </span>
-        )}
+        <div className="absolute left-3 top-3 flex flex-col gap-1">
+          {product.discount_percent > 0 && (
+            <span className="rounded-full bg-accent px-2.5 py-1 text-xs font-bold text-ink">
+              -{product.discount_percent}%
+            </span>
+          )}
+          {!product.in_stock && (
+            <span className="rounded-full bg-ink px-2.5 py-1 text-xs font-bold text-white">Agotado</span>
+          )}
+        </div>
       </Link>
 
-      <div className="flex flex-1 flex-col gap-2 p-4">
-        <Link href={`/p/${product.handle}`} className="line-clamp-2 text-sm font-semibold text-ink hover:text-brand">
+      <div className="flex flex-1 flex-col gap-1.5 p-3 sm:p-4">
+        {product.category_names[0] && (
+          <p className="truncate text-xs text-muted">{product.category_names[0]}</p>
+        )}
+        <Link href={href} className="line-clamp-2 text-sm font-semibold text-ink hover:text-brand">
           {product.title}
         </Link>
 
-        {price && (
-          <p className="flex items-baseline gap-2">
-            {price.hasRange && <span className="text-xs text-muted">desde</span>}
-            <span className="text-lg font-bold text-brand">{formatGuarani(price.current)}</span>
-            {price.discountPercent > 0 && (
-              <span className="text-sm text-muted line-through">{formatGuarani(price.original)}</span>
+        {product.price != null && (
+          <p className="mt-auto flex flex-wrap items-baseline gap-x-2 pt-1">
+            <span className="text-lg font-bold text-brand">{formatGuarani(product.price)}</span>
+            {product.on_sale && product.original_price && (
+              <span className="text-sm text-muted line-through">
+                {formatGuarani(product.original_price)}
+              </span>
             )}
           </p>
         )}
 
         <Link
-          href={`/p/${product.handle}`}
-          className="mt-auto rounded-full bg-brand px-4 py-2 text-center text-sm font-semibold text-white transition hover:bg-brand-dark"
+          href={href}
+          className="mt-2 rounded-full border border-brand px-4 py-2 text-center text-sm font-semibold text-brand transition hover:bg-brand hover:text-white"
         >
-          {hasVariants ? "Seleccionar opciones" : "Ver producto"}
+          {product.variant_count > 1 ? "Seleccionar opciones" : "Ver producto"}
         </Link>
       </div>
     </article>
