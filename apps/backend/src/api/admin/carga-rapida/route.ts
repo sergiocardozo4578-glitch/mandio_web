@@ -88,7 +88,11 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
   }
 
   // Handles únicos: si "remera-negra" existe, se usa "remera-negra-2", etc.
-  const bases = items.map((it) => slugify(it.title))
+  // Un handle solo numérico ("1") choca fácil y no dice nada en la URL.
+  const bases = items.map((it) => {
+    const s = slugify(it.title)
+    return /^\d+$/.test(s) || s.length < 3 ? `producto-${s}` : s
+  })
   const candidates = [...new Set(bases)].flatMap((b) => [
     b,
     ...Array.from({ length: 49 }, (_, k) => `${b}-${k + 2}`),
@@ -133,7 +137,16 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
     }
   })
 
-  const { result: created } = await createProductsWorkflow(req.scope).run({ input: { products } })
+  // Si otra carga simultánea tomó el mismo handle, se reintenta una vez con sufijo aleatorio.
+  let created
+  try {
+    ;({ result: created } = await createProductsWorkflow(req.scope).run({ input: { products } }))
+  } catch (e) {
+    if (!/already exists/i.test((e as Error).message ?? "")) throw e
+    const suffix = Math.random().toString(36).slice(2, 6)
+    products.forEach((p) => (p.handle = `${p.handle}-${suffix}`))
+    ;({ result: created } = await createProductsWorkflow(req.scope).run({ input: { products } }))
+  }
   const ids = created.map((p) => p.id)
 
   // Stock inicial por talle en el depósito por defecto
