@@ -1,6 +1,8 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import Link from "next/link"
+import { useMemo, useState, useTransition } from "react"
+import { addToCart, type ActionResult } from "@/app/actions/cart"
 import { discountPercent, formatGuarani } from "@/lib/format"
 
 export type ActionVariant = {
@@ -45,6 +47,15 @@ export function ProductActions({ title, productUrl, options, variants, whatsapp 
   const inStock = (v: ActionVariant) => v.stock == null || v.stock > 0
   const maxQty = variant?.stock ?? 99
   const allSelected = options.every((o) => selected[o.title])
+  const canAdd = Boolean(variant && inStock(variant))
+
+  const [adding, startAdding] = useTransition()
+  const [feedback, setFeedback] = useState<ActionResult | null>(null)
+  const add = () => {
+    if (!variant) return
+    setFeedback(null)
+    startAdding(async () => setFeedback(await addToCart(variant.id, qty)))
+  }
 
   /** ¿Existe una variante con stock para este valor, dado lo ya elegido en las otras opciones? */
   const isValueAvailable = (optionTitle: string, value: string) =>
@@ -105,6 +116,7 @@ export function ProductActions({ title, productUrl, options, variants, whatsapp 
                     onClick={() => {
                       setSelected((s) => ({ ...s, [option.title]: value }))
                       setQty(1)
+                      setFeedback(null)
                     }}
                     className={`min-w-12 rounded-full border px-4 py-2 text-sm font-semibold transition ${
                       active
@@ -160,13 +172,31 @@ export function ProductActions({ title, productUrl, options, variants, whatsapp 
 
         <button
           type="button"
-          disabled
-          title="El carrito se habilita en la próxima fase"
-          className="h-11 flex-1 rounded-full bg-brand px-6 font-bold text-white opacity-50"
+          disabled={!canAdd || adding}
+          onClick={add}
+          className="h-11 flex-1 rounded-full bg-brand px-6 font-bold text-white transition-colors hover:bg-brand-dark disabled:opacity-50"
         >
-          {!allSelected ? "Elegí una opción" : variant && !inStock(variant) ? "Agotado" : "Añadir al carrito (pronto)"}
+          {!allSelected
+            ? "Elegí una opción"
+            : variant && !inStock(variant)
+              ? "Agotado"
+              : adding
+                ? "Agregando…"
+                : "Añadir al carrito"}
         </button>
       </div>
+
+      {feedback?.ok && (
+        <div role="status" className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-green-200 bg-green-50 px-4 py-3">
+          <p className="text-sm font-semibold text-green-800">✓ Agregado al carrito</p>
+          <Link href="/carrito" className="rounded-full bg-green-700 px-4 py-2 text-sm font-bold text-white hover:bg-green-800">
+            Ver carrito
+          </Link>
+        </div>
+      )}
+      {feedback && !feedback.ok && (
+        <p role="alert" className="rounded-xl bg-red-50 px-4 py-2 text-sm font-semibold text-red-800">{feedback.error}</p>
+      )}
 
       {whatsapp && (
         <a

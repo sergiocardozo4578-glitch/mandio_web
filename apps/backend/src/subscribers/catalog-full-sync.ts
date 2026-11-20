@@ -3,7 +3,7 @@ import { syncProducts } from "../lib/search-index"
 import { revalidateStorefront } from "../lib/storefront"
 
 /**
- * Cambios que afectan a muchos productos a la vez (ofertas, categorías, stock):
+ * Cambios que afectan a muchos productos a la vez (ofertas, categorías, stock, pedidos):
  * se reindexa todo el catálogo. Para unos miles de productos tarda segundos.
  */
 export default async function catalogFullSync({ event: { name }, container }: SubscriberArgs) {
@@ -24,5 +24,7 @@ export const config: SubscriberConfig = {
     "product-category.updated",
     "product-category.deleted",
     "inventory-item.updated",
+    "order.placed",
+    "order.canceled",
   ],
 }

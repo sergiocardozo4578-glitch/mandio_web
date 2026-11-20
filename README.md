@@ -48,6 +48,13 @@ pnpm dev                              # levanta backend y storefront
 2. Un subscriber de Medusa (`apps/backend/src/subscribers`) reindexa Meilisearch y llama a `POST /api/revalidate` del storefront.
 3. Next.js invalida la caché (`revalidateTag`) y la próxima visita ve el cambio.
 
+## Compras (fase 2)
+
+- **Carrito** (`/carrito`): agregar desde la ficha, cambiar cantidades, quitar, cupones de descuento (Admin → Promotions). El id del carrito va en una cookie httpOnly; Medusa valida el stock.
+- **Checkout** (`/checkout`): datos con CI o RUC + razón social (factura), entrega (retiro, delivery o encomienda con departamento/ciudad/barrio/dirección/referencia) y pago: **transferencia, contra entrega o coordinar por WhatsApp**. Bancard se agrega más adelante como otro proveedor de pago.
+- **Confirmación** (`/pedido/[id]`): número de pedido, instrucciones de pago y botón de WhatsApp. Los datos bancarios se configuran en `apps/storefront/.env.local` (`BANCO_NOMBRE`, `BANCO_TITULAR`, `BANCO_CUENTA`, `BANCO_DOCUMENTO`, `BANCO_ALIAS`).
+- **En el admin**: los pedidos aparecen en Orders como "pago autorizado". El método de pago elegido, el documento y la referencia de entrega están en la metadata del pedido. Cuando llega la transferencia (o se cobra la entrega), se marca el pago como capturado.
+
 ## Cargar productos
 
 - **Desde el celular (lo más simple): http://localhost:8000/panel** — se ingresa con la cuenta de admin. Flujo de una prenda por vez: *Sacar foto* o *Elegir de la galería* → precio → nombre → categoría → talles (tocar los disponibles) → cantidad → *Guardar producto*. Recuerda la última categoría y talles para cargar prendas seguidas. Para probarlo en el teléfono durante el desarrollo, con el celular en el mismo Wi-Fi abrir `http://IP-DE-LA-PC:8000/panel` (si Windows pregunta, permitir Node.js en el firewall).
