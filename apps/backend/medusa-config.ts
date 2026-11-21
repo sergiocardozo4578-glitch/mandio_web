@@ -1,4 +1,5 @@
 import { loadEnv, defineConfig } from "@medusajs/framework/utils"
+import { nexusAdminBranding } from "./branding/admin-branding"
 
 loadEnv(process.env.NODE_ENV || "development", process.cwd())
 
@@ -64,6 +65,9 @@ module.exports = defineConfig({
   },
   admin: {
     backendUrl: process.env.MEDUSA_BACKEND_URL || "http://localhost:9000",
+    // Logo, ícono y título de Nexus en el panel (ver branding/admin-branding.ts).
+    // Medusa combina esta config con la suya (mergeConfig): solo se agrega el plugin.
+    vite: () => ({ plugins: [nexusAdminBranding()] }),
   },
   modules,
 })

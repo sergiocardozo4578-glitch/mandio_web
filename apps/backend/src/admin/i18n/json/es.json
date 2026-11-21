@@ -1,0 +1,10 @@
+{
+  "login": {
+    "title": "Bienvenido a Nexus"
+  },
+  "invite": {
+    "title": "Bienvenido a Nexus",
+    "successHint": "Empezá a usar el panel de Nexus ahora mismo.",
+    "successAction": "Entrar al panel"
+  }
+}
