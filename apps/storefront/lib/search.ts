@@ -1,5 +1,6 @@
 import "server-only"
 import { cacheLife, cacheTag } from "next/cache"
+import { FALLBACK_LIFE, logFailure } from "@/lib/medusa"
 
 /**
  * Búsqueda y listados del catálogo sobre Meilisearch (solo servidor).
@@ -133,27 +134,35 @@ type MeiliResponse = {
   facetStats?: Record<string, { min: number; max: number }>
 }
 
-// Las funciones cacheadas lanzan el error (Next no cachea errores) y las
-// exportadas devuelven un resultado vacío: una caída de Meilisearch no queda guardada.
+// Igual que en lib/medusa.ts: el error se atrapa DENTRO de "use cache" (si escapa,
+// falla el prerender) y el resultado vacío se cachea con vida corta (FALLBACK_LIFE),
+// así una caída de Meilisearch no queda guardada.
 
-async function searchProductsCached(input: SearchInput): Promise<SearchResult> {
+export async function searchProducts(input: SearchInput): Promise<SearchResult> {
   "use cache"
-  cacheLife("minutes")
   cacheTag("products")
 
   const perPage = input.perPage ?? 24
   const page = Math.max(1, input.page ?? 1)
   const q = input.q?.trim() ?? ""
 
-  const res = await meili<MeiliResponse>("/indexes/products/search", {
-    q,
-    filter: buildFilter(input),
-    sort: buildSort(input.sort, Boolean(q)),
-    hitsPerPage: perPage,
-    page,
-    facets: ["talle", "color", "price"],
-    attributesToRetrieve: ATTRIBUTES,
-  })
+  let res: MeiliResponse
+  try {
+    res = await meili<MeiliResponse>("/indexes/products/search", {
+      q,
+      filter: buildFilter(input),
+      sort: buildSort(input.sort, Boolean(q)),
+      hitsPerPage: perPage,
+      page,
+      facets: ["talle", "color", "price"],
+      attributesToRetrieve: ATTRIBUTES,
+    })
+  } catch (error) {
+    logFailure("[search]", error)
+    cacheLife(FALLBACK_LIFE)
+    return EMPTY
+  }
+  cacheLife("minutes")
   return {
     hits: res.hits,
     total: res.totalHits ?? 0,
@@ -167,35 +176,27 @@ async function searchProductsCached(input: SearchInput): Promise<SearchResult> {
   }
 }
 
-export async function searchProducts(input: SearchInput): Promise<SearchResult> {
-  try {
-    return await searchProductsCached(input)
-  } catch (error) {
-    console.error("[search] falló:", (error as Error).message)
-    return EMPTY
-  }
-}
-
 async function quickSearchCached(q: string, limit: number) {
   "use cache"
-  cacheLife("minutes")
   cacheTag("products")
-  const res = await meili<{ hits: SearchProduct[]; estimatedTotalHits?: number }>(
-    "/indexes/products/search",
-    { q, limit, attributesToRetrieve: ATTRIBUTES }
-  )
-  return { hits: res.hits, total: res.estimatedTotalHits ?? res.hits.length }
+  try {
+    const res = await meili<{ hits: SearchProduct[]; estimatedTotalHits?: number }>(
+      "/indexes/products/search",
+      { q, limit, attributesToRetrieve: ATTRIBUTES }
+    )
+    cacheLife("minutes")
+    return { hits: res.hits, total: res.estimatedTotalHits ?? res.hits.length }
+  } catch (error) {
+    logFailure("[search] quickSearch", error)
+    cacheLife(FALLBACK_LIFE)
+    return { hits: [] as SearchProduct[], total: 0 }
+  }
 }
 
 /** Para el autocompletado del buscador: pocos resultados, sin facetas. */
 export async function quickSearch(q: string, limit = 6) {
   if (!q.trim()) return { hits: [] as SearchProduct[], total: 0 }
-  try {
-    return await quickSearchCached(q.trim(), limit)
-  } catch (error) {
-    console.error("[search] quickSearch falló:", (error as Error).message)
-    return { hits: [] as SearchProduct[], total: 0 }
-  }
+  return quickSearchCached(q.trim(), limit)
 }
 
 /** Convierte los searchParams de la URL en filtros de búsqueda. */

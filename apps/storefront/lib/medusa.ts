@@ -12,33 +12,41 @@ export const sdk = new Medusa({
 
 /*
  * Patrón de lectura del catálogo:
- *  - Las funciones `*Cached` usan "use cache" y LANZAN el error si Medusa falla.
- *    Next no cachea errores, así que una caída del backend no deja guardado
- *    un resultado vacío.
- *  - Las funciones exportadas envuelven a las cacheadas y devuelven un valor
- *    de respaldo, para que la tienda (y el build) no se caigan sin backend.
+ *  - Las funciones usan "use cache" y atrapan el error DENTRO del scope
+ *    cacheado, devolviendo un valor de respaldo: un error que escapa de
+ *    "use cache" hace fallar el prerender (y el build) aunque se atrape afuera.
+ *  - Se llama a cacheLife una sola vez por ejecución: el perfil normal si hubo
+ *    datos, FALLBACK_LIFE si falló, para que una caída temporal del backend
+ *    no quede guardada por mucho tiempo.
  * Las etiquetas (cacheTag) las invalida el backend vía POST /api/revalidate.
  */
-async function withFallback<T>(label: string, fn: () => Promise<T>, fallback: T): Promise<T> {
-  try {
-    return await fn()
-  } catch (error) {
-    console.error(`[medusa] ${label} falló:`, (error as Error).message)
-    return fallback
-  }
+
+/**
+ * Vida corta para el respaldo tras un error: se revalida a los 30 s.
+ * stale y expire de 5 min o más mantienen la entrada dentro del prerender
+ * (con expire < 5 min Next la vuelve un "hueco dinámico" que exige <Suspense>).
+ */
+export const FALLBACK_LIFE = { stale: 300, revalidate: 30, expire: 600 }
+
+export function logFailure(label: string, error: unknown) {
+  console.error(`${label} falló:`, (error as Error)?.message ?? error)
 }
 
 // ---------- Región ----------
 
-async function getRegionCached(): Promise<HttpTypes.StoreRegion | null> {
+export async function getRegion(): Promise<HttpTypes.StoreRegion | null> {
   "use cache"
-  cacheLife("hours")
   cacheTag("regions")
-  const { regions } = await sdk.store.region.list({ limit: 10 })
-  return regions.find((r) => r.currency_code === "pyg") ?? regions[0] ?? null
+  try {
+    const { regions } = await sdk.store.region.list({ limit: 10 })
+    cacheLife("hours")
+    return regions.find((r) => r.currency_code === "pyg") ?? regions[0] ?? null
+  } catch (error) {
+    logFailure("[medusa] getRegion", error)
+    cacheLife(FALLBACK_LIFE)
+    return null
+  }
 }
-
-export const getRegion = () => withFallback("getRegion", getRegionCached, null)
 
 // ---------- Categorías ----------
 
@@ -49,14 +57,22 @@ export type CategoryNode = {
   children: CategoryNode[]
 }
 
-async function getCategoryTreeCached(): Promise<CategoryNode[]> {
+/** Árbol de categorías activas (para el menú), ordenado por rank. */
+export async function getCategoryTree(): Promise<CategoryNode[]> {
   "use cache"
-  cacheLife("minutes")
   cacheTag("categories")
-  const { product_categories } = await sdk.store.category.list({
-    fields: "id,name,handle,rank,parent_category_id",
-    limit: 500,
-  })
+  let product_categories: HttpTypes.StoreProductCategory[]
+  try {
+    ;({ product_categories } = await sdk.store.category.list({
+      fields: "id,name,handle,rank,parent_category_id",
+      limit: 500,
+    }))
+  } catch (error) {
+    logFailure("[medusa] getCategoryTree", error)
+    cacheLife(FALLBACK_LIFE)
+    return []
+  }
+  cacheLife("minutes")
   const byParent = new Map<string | null, typeof product_categories>()
   for (const c of product_categories) {
     const key = c.parent_category_id ?? null
@@ -69,9 +85,6 @@ async function getCategoryTreeCached(): Promise<CategoryNode[]> {
   return build(null)
 }
 
-/** Árbol de categorías activas (para el menú), ordenado por rank. */
-export const getCategoryTree = () => withFallback("getCategoryTree", getCategoryTreeCached, [])
-
 export type CategoryWithPath = {
   id: string
   name: string
@@ -82,16 +95,23 @@ export type CategoryWithPath = {
   path: { name: string; handle: string }[]
 }
 
-async function getCategoryByHandleCached(handle: string): Promise<CategoryWithPath | null> {
+export async function getCategoryByHandle(handle: string): Promise<CategoryWithPath | null> {
   "use cache"
-  cacheLife("minutes")
   cacheTag("categories")
-  const { product_categories } = await sdk.store.category.list({
-    handle,
-    fields:
-      "id,name,handle,description,*category_children,*parent_category,*parent_category.parent_category",
-    limit: 1,
-  })
+  let product_categories: HttpTypes.StoreProductCategory[]
+  try {
+    ;({ product_categories } = await sdk.store.category.list({
+      handle,
+      fields:
+        "id,name,handle,description,*category_children,*parent_category,*parent_category.parent_category",
+      limit: 1,
+    }))
+  } catch (error) {
+    logFailure("[medusa] getCategoryByHandle", error)
+    cacheLife(FALLBACK_LIFE)
+    return null
+  }
+  cacheLife("minutes")
   const c = product_categories[0]
   if (!c) return null
 
@@ -112,26 +132,30 @@ async function getCategoryByHandleCached(handle: string): Promise<CategoryWithPa
   }
 }
 
-export const getCategoryByHandle = (handle: string) =>
-  withFallback("getCategoryByHandle", () => getCategoryByHandleCached(handle), null)
-
 // ---------- Productos ----------
 
-async function getProductByHandleCached(handle: string): Promise<HttpTypes.StoreProduct | null> {
+export async function getProductByHandle(handle: string): Promise<HttpTypes.StoreProduct | null> {
   "use cache"
-  cacheLife("minutes")
   cacheTag("products", `product:${handle}`)
-  const region = await getRegionCached()
-  if (!region) return null
-  const { products } = await sdk.store.product.list({
-    handle,
-    region_id: region.id,
-    limit: 1,
-    fields:
-      "*images,*options,*options.values,*categories,*variants.calculated_price,*variants.options,+variants.inventory_quantity,+variants.manage_inventory,+variants.allow_backorder,+material,+weight",
-  })
-  return products[0] ?? null
+  const region = await getRegion()
+  if (!region) {
+    // Sin región (backend caído o sin configurar): respaldo de vida corta
+    cacheLife(FALLBACK_LIFE)
+    return null
+  }
+  try {
+    const { products } = await sdk.store.product.list({
+      handle,
+      region_id: region.id,
+      limit: 1,
+      fields:
+        "*images,*options,*options.values,*categories,*variants.calculated_price,*variants.options,+variants.inventory_quantity,+variants.manage_inventory,+variants.allow_backorder,+material,+weight",
+    })
+    cacheLife("minutes")
+    return products[0] ?? null
+  } catch (error) {
+    logFailure("[medusa] getProductByHandle", error)
+    cacheLife(FALLBACK_LIFE)
+    return null
+  }
 }
-
-export const getProductByHandle = (handle: string) =>
-  withFallback("getProductByHandle", () => getProductByHandleCached(handle), null)
