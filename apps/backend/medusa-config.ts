@@ -3,7 +3,30 @@ import { nexusAdminBranding } from "./branding/admin-branding"
 
 loadEnv(process.env.NODE_ENV || "development", process.cwd())
 
+const isProduction = process.env.NODE_ENV === "production"
+const databaseUrl = process.env.DATABASE_URL
 const redisUrl = process.env.REDIS_URL
+
+// Sin DATABASE_URL Medusa usa en silencio postgres://localhost/medusa-starter-default:
+// en Railway eso termina en ECONNREFUSED. En producción se corta con un error claro.
+if (isProduction && !databaseUrl) {
+  throw new Error(
+    "[config] Falta DATABASE_URL. En Railway: Variables del backend → DATABASE_URL=${{Postgres.DATABASE_URL}}"
+  )
+}
+if (databaseUrl) {
+  // Se muestra destino sin usuario ni contraseña, para diagnosticar desde los logs.
+  try {
+    const u = new URL(databaseUrl)
+    console.log(`[config] Postgres: ${u.hostname}:${u.port || 5432}${u.pathname}`)
+  } catch {
+    throw new Error("[config] DATABASE_URL no es una URL válida (postgresql://usuario:clave@host:puerto/base)")
+  }
+}
+if (isProduction && !redisUrl) {
+  console.warn("[config] Falta REDIS_URL: se usan event bus y workflows en memoria (no recomendado en producción)")
+}
+
 const useS3 = Boolean(process.env.S3_BUCKET && process.env.S3_ACCESS_KEY_ID)
 
 const modules: { resolve: string; options?: Record<string, unknown> }[] = []
@@ -53,7 +76,7 @@ modules.push({
 
 module.exports = defineConfig({
   projectConfig: {
-    databaseUrl: process.env.DATABASE_URL,
+    databaseUrl,
     redisUrl,
     http: {
       storeCors: process.env.STORE_CORS!,
