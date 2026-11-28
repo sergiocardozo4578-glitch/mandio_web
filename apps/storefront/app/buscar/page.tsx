@@ -12,7 +12,7 @@ async function SearchHeading({ searchParams }: { searchParams: PageProps<"/busca
   const { q } = await searchParams
   const term = (Array.isArray(q) ? q[0] : q)?.trim()
   return (
-    <h1 className="mb-6 text-3xl font-extrabold">
+    <h1 className="page-title mb-6">
       {term ? <>Resultados para “{term}”</> : "Buscar productos"}
     </h1>
   )
@@ -20,9 +20,9 @@ async function SearchHeading({ searchParams }: { searchParams: PageProps<"/busca
 
 export default function BuscarPage(props: PageProps<"/buscar">) {
   return (
-    <div className="mx-auto max-w-7xl px-4 pb-8">
+    <div className="store-container pb-8">
       <Breadcrumbs items={[{ name: "Búsqueda" }]} />
-      <Suspense fallback={<h1 className="mb-6 text-3xl font-extrabold">Buscar productos</h1>}>
+      <Suspense fallback={<h1 className="page-title mb-6">Buscar productos</h1>}>
         <SearchHeading searchParams={props.searchParams} />
       </Suspense>
       <Suspense fallback={<ListingSkeleton />}>

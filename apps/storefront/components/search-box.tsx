@@ -21,37 +21,35 @@ export function SearchBox({ className = "" }: { className?: string }) {
   const router = useRouter()
   const listId = useId()
   const [q, setQ] = useState("")
-  const [hits, setHits] = useState<Hit[]>([])
-  const [total, setTotal] = useState(0)
+  const term = q.trim()
+  const [result, setResult] = useState<{ term: string; hits: Hit[]; total: number; failed?: boolean } | null>(null)
+  const current = result?.term === term ? result : null
+  const hits = current?.hits ?? []
+  const total = current?.total ?? 0
   const [open, setOpen] = useState(false)
-  const [loading, setLoading] = useState(false)
+  const inputRef = useRef<HTMLInputElement>(null)
   const [active, setActive] = useState(-1)
   const boxRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    const term = q.trim()
     // Con menos de 2 letras el panel no se muestra, no hace falta buscar.
     if (term.length < 2) return
     const controller = new AbortController()
     const timer = setTimeout(async () => {
-      setLoading(true)
       try {
         const res = await fetch(`/api/search?q=${encodeURIComponent(term)}`, { signal: controller.signal })
+        if (!res.ok) throw new Error("search")
         const data = (await res.json()) as { hits: Hit[]; total: number }
-        setHits(data.hits)
-        setTotal(data.total)
-        setActive(-1)
+        if (!controller.signal.aborted) setResult({ term, hits: data.hits, total: data.total })
       } catch {
-        // búsqueda cancelada o sin conexión
-      } finally {
-        setLoading(false)
+        if (!controller.signal.aborted) setResult({ term, hits: [], total: 0, failed: true })
       }
     }, 200)
     return () => {
       clearTimeout(timer)
       controller.abort()
     }
-  }, [q])
+  }, [term])
 
   useEffect(() => {
     const onClick = (e: MouseEvent) => {
@@ -63,32 +61,40 @@ export function SearchBox({ className = "" }: { className?: string }) {
 
   const goTo = (href: string) => {
     setOpen(false)
+    setActive(-1)
     router.push(href)
   }
 
   const showPanel = open && q.trim().length >= 2
 
   return (
-    <div ref={boxRef} className={`relative ${className}`}>
+    <div ref={boxRef} className={`relative ${className}`} onBlur={(event) => {
+      if (!event.currentTarget.contains(event.relatedTarget)) setOpen(false)
+    }}>
       <form
         role="search"
+        className="relative"
         onSubmit={(e) => {
           e.preventDefault()
-          if (active >= 0 && hits[active]) return goTo(`/p/${hits[active].handle}`)
+          if (showPanel && active >= 0 && hits[active]) return goTo(`/p/${hits[active].handle}`)
           if (q.trim()) goTo(`/buscar?q=${encodeURIComponent(q.trim())}`)
         }}
       >
         <label className="sr-only" htmlFor={`${listId}-input`}>Buscar productos</label>
+        <span aria-hidden="true" className="search-icon pointer-events-none absolute top-1/2 left-4 -translate-y-1/2 text-accent-dark" />
         <input
+          ref={inputRef}
           id={`${listId}-input`}
           type="search"
           value={q}
           autoComplete="off"
           role="combobox"
           aria-expanded={showPanel}
-          aria-controls={listId}
-          aria-activedescendant={active >= 0 ? `${listId}-${active}` : undefined}
+          aria-autocomplete="list"
+          aria-controls={showPanel && hits.length ? listId : undefined}
+          aria-activedescendant={showPanel && hits[active] ? `${listId}-${active}` : undefined}
           onChange={(e) => {
+            setActive(-1)
             setQ(e.target.value)
             setOpen(true)
           }}
@@ -96,24 +102,37 @@ export function SearchBox({ className = "" }: { className?: string }) {
           onKeyDown={(e) => {
             if (e.key === "ArrowDown") {
               e.preventDefault()
+              setOpen(true)
               setActive((a) => Math.min(hits.length - 1, a + 1))
             } else if (e.key === "ArrowUp") {
               e.preventDefault()
               setActive((a) => Math.max(-1, a - 1))
             } else if (e.key === "Escape") {
+              e.preventDefault()
+              setActive(-1)
               setOpen(false)
             }
           }}
-          placeholder="Empezá a escribir para buscar productos…"
-          className="w-full rounded-full border border-line bg-cream px-4 py-2 text-sm outline-none focus:border-brand"
+          placeholder="Buscá en Mandi’o…"
+          className="min-h-11 w-full rounded-full border border-line bg-cream py-2 pr-12 pl-11 [&::-webkit-search-cancel-button]:hidden text-sm placeholder:text-muted focus:border-brand"
         />
+        {q && (
+          <button type="button" aria-label="Borrar búsqueda" className="absolute inset-y-0 right-0 w-11 rounded-full text-lg text-muted hover:text-brand"
+            onClick={() => {
+              setQ("")
+              setActive(-1)
+              inputRef.current?.focus()
+            }}>
+            <span aria-hidden="true">×</span>
+          </button>
+        )}
       </form>
 
       {showPanel && (
-        <div className="absolute left-0 right-0 top-full z-40 mt-2 overflow-hidden rounded-2xl border border-line bg-surface shadow-xl">
+        <div className="absolute left-0 right-0 top-full z-40 mt-2 max-h-[55dvh] overflow-y-auto overscroll-contain rounded-2xl border border-line bg-surface shadow-xl">
           {hits.length > 0 ? (
             <>
-              <ul id={listId} role="listbox">
+              <ul id={listId} role="listbox" aria-label="Sugerencias de productos">
                 {hits.map((h, i) => (
                   <li key={h.id} id={`${listId}-${i}`} role="option" aria-selected={i === active}>
                     <Link
@@ -144,8 +163,8 @@ export function SearchBox({ className = "" }: { className?: string }) {
               </Link>
             </>
           ) : (
-            <p className="px-4 py-4 text-sm text-muted">
-              {loading ? "Buscando…" : `No encontramos productos para “${q.trim()}”.`}
+            <p role="status" className="px-4 py-4 text-sm text-muted">
+              {!current ? "Buscando…" : current.failed ? "No pudimos cargar las sugerencias. Presioná Enter para buscar." : `No encontramos productos para “${term}”.`}
             </p>
           )}
         </div>

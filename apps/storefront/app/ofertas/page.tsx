@@ -10,10 +10,10 @@ export const metadata: Metadata = {
 
 export default function OfertasPage(props: PageProps<"/ofertas">) {
   return (
-    <div className="mx-auto max-w-7xl px-4 pb-8">
+    <div className="store-container pb-8">
       <Breadcrumbs items={[{ name: "Ofertas" }]} />
-      <h1 className="text-3xl font-extrabold">Ofertas</h1>
-      <p className="mb-6 mt-1 text-muted">Descuentos por tiempo limitado, hasta agotar stock.</p>
+      <h1 className="page-title">Ofertas</h1>
+      <p className="mt-2 mb-6 text-muted">Descuentos por tiempo limitado, hasta agotar stock.</p>
       <Suspense fallback={<ListingSkeleton />}>
         <CatalogListing
           searchParams={props.searchParams}

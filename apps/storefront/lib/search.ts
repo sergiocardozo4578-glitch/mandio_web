@@ -208,8 +208,10 @@ export function parseSearchParams(
   }
   const one = (k: string) => list(k)[0]
   const num = (k: string) => {
-    const n = Number(one(k)?.replace(/\D/g, ""))
-    return Number.isFinite(n) && n > 0 ? n : undefined
+    const digits = one(k)?.replace(/\D/g, "")
+    if (!digits) return undefined
+    const n = Number(digits)
+    return Number.isSafeInteger(n) && (k !== "pagina" || n > 0) ? n : undefined
   }
   const sort = one("orden") as SortKey | undefined
   return {
