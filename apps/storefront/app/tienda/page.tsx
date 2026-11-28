@@ -10,9 +10,9 @@ export const metadata: Metadata = {
 
 export default function TiendaPage(props: PageProps<"/tienda">) {
   return (
-    <div className="mx-auto max-w-7xl px-4 pb-8">
+    <div className="store-container pb-8">
       <Breadcrumbs items={[{ name: "Tienda" }]} />
-      <h1 className="mb-6 text-3xl font-extrabold">Tienda</h1>
+      <h1 className="page-title mb-6">Tienda</h1>
       <Suspense fallback={<ListingSkeleton />}>
         <CatalogListing searchParams={props.searchParams} basePath="/tienda" />
       </Suspense>

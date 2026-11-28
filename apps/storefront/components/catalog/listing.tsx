@@ -44,13 +44,13 @@ export async function CatalogListing({ searchParams, basePath, fixed, emptyMessa
       />
 
       {result.hits.length > 0 ? (
-        <div className="mt-6 grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4">
+        <div className="mt-6 grid grid-cols-2 gap-3 sm:gap-5 md:grid-cols-3 lg:grid-cols-4">
           {result.hits.map((p) => (
             <ProductCard key={p.id} product={p} />
           ))}
         </div>
       ) : (
-        <p className="mt-6 rounded-2xl border border-dashed border-line p-10 text-center text-muted">
+        <p className="mt-6 rounded-xl border border-line bg-surface px-5 py-10 text-center text-muted">
           {emptyMessage ?? "No encontramos productos con esos filtros."}
         </p>
       )}
@@ -65,7 +65,7 @@ export function ListingSkeleton() {
     <div aria-hidden>
       <div className="h-8 w-48 animate-pulse rounded-full bg-line" />
       <div className="mt-4 h-14 animate-pulse rounded-2xl bg-line/60" />
-      <div className="mt-6 grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4">
+      <div className="mt-6 grid grid-cols-2 gap-3 sm:gap-5 md:grid-cols-3 lg:grid-cols-4">
         {Array.from({ length: 8 }).map((_, i) => (
           <div key={i} className="aspect-[3/4] animate-pulse rounded-2xl bg-line/60" />
         ))}

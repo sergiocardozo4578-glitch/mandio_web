@@ -130,7 +130,7 @@ async function ProductDetail({ params }: Pick<PageProps<"/p/[handle]">, "params"
         <ProductGallery images={images} title={product.title} />
 
         <div>
-          <h1 className="text-2xl font-extrabold leading-tight sm:text-3xl">{product.title}</h1>
+          <h1 className="page-title leading-tight">{product.title}</h1>
           <div className="mt-5">
             <ProductActions
               title={product.title}
@@ -141,7 +141,7 @@ async function ProductDetail({ params }: Pick<PageProps<"/p/[handle]">, "params"
             />
           </div>
 
-          <div className="mt-8 divide-y divide-line rounded-2xl border border-line bg-surface">
+          <div className="mt-8 divide-y divide-line rounded-xl border border-line bg-surface">
             {product.description && (
               <details open className="group p-4">
                 <summary className="cursor-pointer list-none font-semibold">Descripción</summary>
@@ -188,7 +188,7 @@ async function ProductDetail({ params }: Pick<PageProps<"/p/[handle]">, "params"
 
 export default function ProductPage(props: PageProps<"/p/[handle]">) {
   return (
-    <div className="mx-auto max-w-7xl px-4 pb-8">
+    <div className="store-container pb-8">
       <Suspense
         fallback={
           <div className="grid gap-8 py-12 lg:grid-cols-2" aria-hidden>

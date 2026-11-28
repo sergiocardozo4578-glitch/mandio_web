@@ -38,8 +38,8 @@ async function CategoryContent({ params, searchParams }: PageProps<"/c/[handle]"
   return (
     <>
       <Breadcrumbs items={crumbs} />
-      <h1 className="text-3xl font-extrabold">{category.name}</h1>
-      {category.description && <p className="mt-1 text-muted">{category.description}</p>}
+      <h1 className="page-title">{category.name}</h1>
+      {category.description && <p className="mt-2 text-muted">{category.description}</p>}
 
       {category.children.length > 0 && (
         <ul className="mt-4 flex flex-wrap gap-2">
@@ -72,7 +72,7 @@ async function CategoryContent({ params, searchParams }: PageProps<"/c/[handle]"
 
 export default function CategoryPage(props: PageProps<"/c/[handle]">) {
   return (
-    <div className="mx-auto max-w-7xl px-4 pb-8">
+    <div className="store-container pb-8">
       <Suspense fallback={<ListingSkeleton />}>
         <CategoryContent {...props} />
       </Suspense>

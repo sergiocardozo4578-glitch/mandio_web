@@ -63,6 +63,25 @@ pnpm dev                              # levanta backend y storefront
 - **En cantidad desde planilla**: Admin → Products → Import (CSV; el admin ofrece la plantilla).
 - **Uno por uno con todas las opciones**: Admin → Products → Create.
 
+## Deploy en Railway
+
+Un proyecto con 5 servicios: **Postgres**, **Redis**, **Meilisearch**, **backend** y **storefront**. Los dos servicios de apps se construyen desde la raíz del repo (lo necesita el workspace de pnpm) con Railpack:
+
+| Servicio | Root Directory | Config file path |
+|---|---|---|
+| backend | `/` (raíz del repo) | `/apps/backend/railway.json` |
+| storefront | `/` (raíz del repo) | `/apps/storefront/railway.json` |
+
+Cada `railway.json` define build, start, watch patterns (solo se redeploya si cambia su app o el lockfile/workspace) y política de reinicio. El backend corre las migraciones como *pre-deploy* y arranca desde `.medusa/server` (la salida de `medusa build`, con el admin incluido); healthcheck en `/health`. Ambos escuchan en el `PORT` que asigna Railway (local: 9000 y 8000).
+
+**Variables del backend:** `NODE_ENV=production`, `DATABASE_URL`, `REDIS_URL`, `MEDUSA_BACKEND_URL` (URL pública del backend; también se usa al compilar el admin), `MEILISEARCH_HOST`, `MEILISEARCH_API_KEY`, `JWT_SECRET`, `COOKIE_SECRET`, `REVALIDATE_SECRET`, `STOREFRONT_URL`, `STORE_CORS`, `ADMIN_CORS`, `AUTH_CORS` y, para imágenes en R2, `S3_FILE_URL`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY`, `S3_REGION`, `S3_BUCKET`, `S3_ENDPOINT` (sin S3 las fotos van al disco del contenedor y se pierden en cada deploy).
+
+**Variables del storefront:** `NEXT_PUBLIC_MEDUSA_BACKEND_URL`, `NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY`, `NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_WHATSAPP`, `MEILISEARCH_HOST`, `MEILISEARCH_SEARCH_KEY`, `REVALIDATE_SECRET` (el mismo que en el backend) y, si se usan, `BANCO_*`.
+
+- El storefront tiene que usar las URLs **públicas** del backend y de Meilisearch: `next build` consulta la API y la red privada de Railway no existe durante el build.
+- Las `NEXT_PUBLIC_*` se incrustan al compilar: cambiarlas requiere un redeploy.
+- En Railway el storefront arranca con `next start` sin `--port`, así toma el `PORT` que asigna Railway; en local `pnpm start` sigue usando el 8000.
+
 ## Problemas conocidos (y cómo evitarlos)
 
 - **No dejar carpetas vacías en `apps/backend/src/api/store` o `src/api/admin`.** Medusa deja de registrar sus rutas core de ese grupo y todo `/store/*` responde 404.

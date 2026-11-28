@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useRef, useTransition } from "react"
 import { formatGuarani } from "@/lib/format"
@@ -50,26 +51,48 @@ export function CatalogFilters({
     if (!form) return
     const params = new URLSearchParams()
     for (const [key, value] of new FormData(form)) {
-      if (typeof value === "string" && value.trim() !== "") params.append(key, value.trim())
+      if (typeof value !== "string" || !value.trim()) continue
+      const text = value.trim()
+      params.append(key, key === "min" || key === "max" ? text.replaceAll(".", "") : text)
+    }
+    const min = params.get("min")
+    const max = params.get("max")
+    if (!form.reportValidity()) return
+    if (min && max && Number(min) > Number(max)) {
+      const upper = form.elements.namedItem("max") as HTMLInputElement
+      upper.setCustomValidity("El precio máximo debe ser igual o mayor que el mínimo.")
+      upper.reportValidity()
+      upper.setCustomValidity("")
+      return
     }
     const qs = params.toString()
     startTransition(() => router.push(qs ? `${basePath}?${qs}` : basePath, { scroll: false }))
   }
 
-  const talles = Object.keys(facets.talle).sort(sortSizes)
-  const colors = Object.keys(facets.color).sort((a, b) => a.localeCompare(b, "es"))
-  const activeCount =
-    current.talle.length +
-    current.color.length +
-    (current.min ? 1 : 0) +
-    (current.max ? 1 : 0) +
-    (current.onSale ? 1 : 0) +
-    (current.inStock ? 1 : 0)
+  const talles = Array.from(new Set([...current.talle, ...Object.keys(facets.talle)])).sort(sortSizes)
+  const colors = Array.from(new Set([...current.color, ...Object.keys(facets.color)])).sort((a, b) => a.localeCompare(b, "es"))
+  const filters = [
+    ...current.talle.map(value => ({ key: "talle", value, label: `Talle ${value}` })),
+    ...current.color.map(value => ({ key: "color", value, label: `Color ${value}` })),
+    ...(current.min != null ? [{ key: "min", value: String(current.min), label: `Desde ${formatGuarani(current.min)}` }] : []),
+    ...(current.max != null ? [{ key: "max", value: String(current.max), label: `Hasta ${formatGuarani(current.max)}` }] : []),
+    ...(current.onSale && !hideOnSale ? [{ key: "oferta", value: "1", label: "Solo ofertas" }] : []),
+    ...(current.inStock ? [{ key: "stock", value: "1", label: "Con stock" }] : []),
+  ]
+  const activeCount = filters.length
+
+  function catalogUrl(remaining: typeof filters) {
+    const params = new URLSearchParams()
+    if (current.q) params.set("q", current.q)
+    if (current.sort) params.set("orden", current.sort)
+    remaining.forEach(({ key, value }) => params.append(key, value))
+    return params.size ? `${basePath}?${params}` : basePath
+  }
 
   const chip = (name: string, value: string, checked: boolean, count?: number) => (
     <label
       key={`${name}-${value}`}
-      className="cursor-pointer select-none rounded-full border border-line bg-surface px-3 py-1 text-sm transition has-[:checked]:border-brand has-[:checked]:bg-brand has-[:checked]:text-white"
+      className="cursor-pointer select-none rounded-full border border-line bg-cream px-3 py-1 text-sm transition has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-brand has-[:checked]:border-brand has-[:checked]:bg-brand has-[:checked]:text-white"
     >
       <input
         type="checkbox"
@@ -106,7 +129,7 @@ export function CatalogFilters({
             name="orden"
             defaultValue={current.sort ?? (current.q ? "relevancia" : "novedades")}
             onChange={apply}
-            className="rounded-full border border-line bg-surface px-3 py-1.5"
+            className="min-h-10 rounded-full border border-line bg-surface px-3 py-1.5"
           >
             {sortOptions
               .filter((o) => current.q || o.value !== "relevancia")
@@ -119,8 +142,24 @@ export function CatalogFilters({
         </label>
       </div>
 
-      <details className="group mt-4 rounded-2xl border border-line bg-surface p-4 lg:open:block" open={activeCount > 0}>
-        <summary className="flex cursor-pointer list-none items-center justify-between font-semibold">
+      {activeCount > 0 && (
+        <div aria-label="Filtros aplicados" role="group" className="mt-4 flex flex-wrap items-center gap-2">
+          {filters.map((filter) => (
+            <Link key={`${filter.key}-${filter.value}`} scroll={false}
+              href={catalogUrl(filters.filter(item => item !== filter))}
+              aria-label={`Quitar filtro: ${filter.label}`}
+              className="inline-flex min-h-10 items-center gap-2 rounded-full border border-brand/25 bg-rosewash px-3 text-sm text-brand-dark hover:border-brand">
+              {filter.label}<span aria-hidden="true">×</span>
+            </Link>
+          ))}
+          <Link href={catalogUrl([])} scroll={false} className="px-2 py-2 text-sm font-semibold text-brand underline underline-offset-4">
+            Limpiar filtros
+          </Link>
+        </div>
+      )}
+
+      <details className="group mt-4 rounded-xl border border-line bg-surface p-4 sm:px-5" open={activeCount > 0}>
+        <summary className="flex cursor-pointer list-none items-center justify-between font-bold text-brand-dark">
           <span>
             Filtros{activeCount > 0 && <span className="ml-2 rounded-full bg-brand px-2 py-0.5 text-xs text-white">{activeCount}</span>}
           </span>
@@ -155,7 +194,8 @@ export function CatalogFilters({
                 inputMode="numeric"
                 placeholder={priceRange ? formatGuarani(priceRange.min) : "Mínimo"}
                 defaultValue={current.min ?? ""}
-                onBlur={apply}
+                pattern="[0-9]+|[0-9]{1,3}([.][0-9]{3})+"
+                title="Escribí un monto en guaraníes, por ejemplo 15000 o 15.000"
                 className="w-full rounded-lg border border-line px-3 py-1.5 text-sm"
                 aria-label="Precio mínimo"
               />
@@ -165,11 +205,13 @@ export function CatalogFilters({
                 inputMode="numeric"
                 placeholder={priceRange ? formatGuarani(priceRange.max) : "Máximo"}
                 defaultValue={current.max ?? ""}
-                onBlur={apply}
+                pattern="[0-9]+|[0-9]{1,3}([.][0-9]{3})+"
+                title="Escribí un monto en guaraníes, por ejemplo 15000 o 15.000"
                 className="w-full rounded-lg border border-line px-3 py-1.5 text-sm"
                 aria-label="Precio máximo"
               />
             </div>
+            <button type="submit" className="mt-2 min-h-10 rounded-full border border-line px-4 text-sm font-bold text-brand hover:bg-rosewash">Aplicar precio</button>
           </fieldset>
 
           <fieldset className="flex flex-col gap-2 text-sm">
@@ -187,19 +229,6 @@ export function CatalogFilters({
           </fieldset>
         </div>
 
-        {activeCount > 0 && (
-          <button
-            type="button"
-            onClick={() =>
-              startTransition(() =>
-                router.push(current.q ? `${basePath}?q=${encodeURIComponent(current.q)}` : basePath, { scroll: false })
-              )
-            }
-            className="mt-4 text-sm font-semibold text-brand hover:underline"
-          >
-            Limpiar filtros
-          </button>
-        )}
       </details>
     </form>
   )
